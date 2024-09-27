@@ -125,11 +125,16 @@ class KnowledgeGraphLoader:
                     Neo4JQueryManager.create_relationship(),
                     source_id=rel["source_id"],
                     target_id=rel["target_id"],
-                    rel_type=rel["type"]
+                    rel_type=rel["type"],
                 )
 
-    def load_chunk(self, chunk: TextChunk, document: Document, entities: list[Entity],
-                   prev_chunk_id: str = None) -> None:
+    def load_chunk(
+        self,
+        chunk: TextChunk,
+        document: Document,
+        entities: list[Entity],
+        prev_chunk_id: str = None,
+    ) -> None:
         """
         Carga un fragmento de texto en el grafo de conocimiento.
 
@@ -153,7 +158,7 @@ class KnowledgeGraphLoader:
                 session.run(
                     Neo4JQueryManager.create_chunks_and_relationships(),
                     chunk=chunk_data,
-                    doc_id=document.id
+                    doc_id=document.id,
                 )
 
             logger.info(f"Cargado chunk {chunk.id} fragmentos exitosamente")

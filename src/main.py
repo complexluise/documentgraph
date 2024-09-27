@@ -109,7 +109,9 @@ class DocumentAnalysisPipeline:
                 self.graph_loader.load_relationships(result.relationships)
 
                 # Load the chunk with its entities and maintain NEXT relationship
-                self.graph_loader.load_chunk(chunk, document, result.entities, prev_chunk_id)
+                self.graph_loader.load_chunk(
+                    chunk, document, result.entities, prev_chunk_id
+                )
 
                 # Update prev_chunk_id for the next iteration
                 prev_chunk_id = chunk.id
@@ -119,6 +121,7 @@ class DocumentAnalysisPipeline:
             logger.error(f"Error al cargar datos en el grafo: {str(e)}", exc_info=True)
         finally:
             self.graph_loader.close()
+
 
 if __name__ == "__main__":
     etl_config = ETLConfig()  # Asume que ETLConfig puede ser instanciada sin argumentos
