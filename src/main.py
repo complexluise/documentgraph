@@ -16,14 +16,14 @@ logger = logging.getLogger(__name__)
 
 
 class DocumentAnalysisPipeline:
-    def __init__(self, config: ETLConfig):
-        self.config = config
-        self.extractor = DocumentExtractor(config)
-        self.preprocessor = TextProcessor(ChunkConfig())
-        self.embedding_generator = EmbeddingGenerator(config)
-        self.entity_relation_extractor = EntityRelationExtractor(config)
-        self.graph_loader = KnowledgeGraphLoader(config)
-        self.query_engine = QueryEngine(config)
+    def __init__(self, etl_config: ETLConfig):
+        self.config = etl_config
+        self.extractor = DocumentExtractor(etl_config)
+        self.preprocessor = TextProcessor(etl_config)
+        self.embedding_generator = EmbeddingGenerator(etl_config)
+        self.entity_relation_extractor = EntityRelationExtractor(etl_config)
+        self.graph_loader = KnowledgeGraphLoader(etl_config)
+        self.query_engine = QueryEngine(etl_config)
 
     def execute_pipeline(self, data_sources: List[str]) -> None:
         """
