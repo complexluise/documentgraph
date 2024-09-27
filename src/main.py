@@ -3,13 +3,13 @@ from typing import List, Tuple
 from src.extraction import DocumentExtractor
 from src.models import Document, TextChunk, Entity, Relationship
 from src.transformation import (
-    TextPreprocessor,
+    TextProcessor,
     EmbeddingGenerator,
     EntityRelationExtractor,
 )
 from src.loading import KnowledgeGraphLoader
 from src.query import QueryEngine
-from src.config import ETLConfig
+from src.config import ETLConfig, ChunkConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class DocumentAnalysisPipeline:
     def __init__(self, config: ETLConfig):
         self.config = config
         self.extractor = DocumentExtractor(config)
-        self.preprocessor = TextPreprocessor(config)
+        self.preprocessor = TextProcessor(ChunkConfig())
         self.embedding_generator = EmbeddingGenerator(config)
         self.entity_relation_extractor = EntityRelationExtractor(config)
         self.graph_loader = KnowledgeGraphLoader(config)
@@ -64,7 +64,7 @@ class DocumentAnalysisPipeline:
         Preprocesa los documentos extraídos.
         """
         logger.info("Preprocesando documentos")
-        return self.preprocessor.preprocess(document)
+        return self.preprocessor.process(document)
 
     def chunk_documents(self, document: Document) -> List[TextChunk]:
         """

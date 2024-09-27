@@ -1,20 +1,61 @@
-from typing import Tuple
-
-from src.config import ETLConfig
+from typing import Tuple, List
+from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from langchain_experimental.text_splitter import SemanticChunker
+from langchain_openai.embeddings import OpenAIEmbeddings
+from src.config import ChunkConfig
 from src.models import Document, TextChunk, Entity, Relationship
 
 
-class TextPreprocessor:
-    def __init__(self, config: ETLConfig):
+class TextProcessor:
+    def __init__(self, config: ChunkConfig):
         self.config = config
 
-    def preprocess(self, document: Document) -> Document:
+    @staticmethod
+    def process(document: Document) -> Document:
         # Implementación del procesamiento de texto
-        pass
+        return document
 
-    def create_chunks(self, document: Document) -> list[TextChunk]:
-        # Implementación de la creación de chunks
-        pass
+    def create_chunks(self, document: Document) -> List[TextChunk]:
+        text = document.content
+        chunks = []
+
+        if self.config.chunking_strategy == "recursive":
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=self.config.chunk_size,
+                chunk_overlap=self.config.chunk_overlap,
+                length_function=len,
+                is_separator_regex=False,
+            )
+            chunks = text_splitter.create_documents([text])
+
+        elif self.config.chunking_strategy == "character":
+            text_splitter = CharacterTextSplitter(
+                separator="\n\n",
+                chunk_size=self.config.chunk_size,
+                chunk_overlap=self.config.chunk_overlap,
+                length_function=len,
+                is_separator_regex=False,
+            )
+            chunks = text_splitter.create_documents([text])
+
+        elif self.config.chunking_strategy == "semantic":
+            text_splitter = SemanticChunker(OpenAIEmbeddings())
+            chunks = text_splitter.create_documents([text])
+
+        elif self.config.chunking_strategy == "tiktoken":
+            text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                encoding_name="cl100k_base",
+                chunk_size=self.config.chunk_size,
+                chunk_overlap=self.config.chunk_overlap
+            )
+            chunks = text_splitter.split_text(text)
+
+        return [
+            TextChunk(
+                content=chunk.page_content,
+                metadata=chunk.metadata
+            ) for chunk in chunks
+        ]
 
 
 class EmbeddingGenerator:

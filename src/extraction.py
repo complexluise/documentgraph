@@ -16,9 +16,14 @@ class DataExtractor(ABC):
 
 class DocumentExtractor(DataExtractor):
     def extract(self) -> Document:
-        for filename in os.listdir(self.config.input_folder):
+        """
+        Extracts documents from the configured input folder and yields them as Document objects.
+
+        This method iterates through the files in the input folder, and for each file with a .txt extension, it reads the file content and yields a Document object with the file's ID, filename, and content.
+        """
+        for i, filename in enumerate(os.listdir(self.config.input_folder)):
             if filename.endswith(".txt"):
                 file_path = os.path.join(self.config.input_folder, filename)
                 with open(file_path, "r", encoding="utf-8") as file:
                     content = file.read()
-                    yield Document(filename=filename, content=content)
+                    yield Document(id=i, filename=filename, content=content)
