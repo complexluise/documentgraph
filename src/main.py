@@ -23,7 +23,6 @@ class DocumentAnalysisPipeline:
         self.embedding_generator = EmbeddingGenerator(etl_config)
         self.entity_relation_extractor = EntityRelationExtractor(etl_config)
         self.graph_loader = KnowledgeGraphLoader(etl_config)
-        self.query_engine = QueryEngine(etl_config)
 
     def execute_pipeline(self, data_sources: List[str]) -> None:
         """
@@ -111,18 +110,13 @@ class DocumentAnalysisPipeline:
         Carga los datos extraídos en el grafo de conocimiento.
         """
         logger.info("Cargando datos en el grafo de conocimiento")
-        self.graph_loader.load_incremental(entities, relationships, embedded_chunks)
-
-    def process_query(self, query: str) -> str:
-        """
-        Procesa consultas de usuario utilizando el grafo de conocimiento.
-        """
-        logger.info(f"Procesando consulta de usuario: {query}")
         try:
-            return self.query_engine.process_query(query)
+            self.graph_loader.load_incremental(entities, relationships, embedded_chunks)
+            logger.info("Datos cargados exitosamente en el grafo de conocimiento")
         except Exception as e:
-            logger.error(f"Error al procesar la consulta: {str(e)}", exc_info=True)
-            return "Se produjo un error al procesar su consulta. Por favor, inténtelo de nuevo."
+            logger.error(f"Error al cargar datos en el grafo: {str(e)}", exc_info=True)
+        finally:
+            self.graph_loader.close()
 
 
 if __name__ == "__main__":
