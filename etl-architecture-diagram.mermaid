@@ -1,0 +1,29 @@
+graph TD
+    A[Fuentes de Datos] -->|Extracción| B[Extractor]
+    B --> C[Cola de Mensajes]
+    C --> D[Procesador de Texto]
+    D --> E[Generador de Embeddings]
+    E --> F[Analizador de Entidades y Relaciones]
+    F --> G[Cargador de Grafos]
+    G --> H[Neo4j / TerminusDB]
+    I[LLM API] <--> J[Gestor de Consultas]
+    J <--> H
+    K[Usuario] <--> J
+    
+    subgraph "Capa de Extracción"
+    A
+    B
+    end
+    
+    subgraph "Capa de Transformación"
+    D
+    E
+    F
+    end
+    
+    subgraph "Capa de Carga y Consulta"
+    G
+    H
+    I
+    J
+    end
