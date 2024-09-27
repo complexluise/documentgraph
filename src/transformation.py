@@ -100,27 +100,60 @@ class EntityRelationExtractor:
 
     def extract_chain(self):
         prompt = ChatPromptTemplate.from_template(
-            "Extrae las entidades y relaciones del siguiente texto.\n"
-            "Primero razona un poco para identificar cuales son las mismas entidades.\n"
-            "Proporciona la salida en formato JSON inline code with ``` que cumpla con el siguiente esquema:\n"
-            "{{\n"
-            '  "entities": [\n'
-            "    {{\n"
-            '      "name": "string",\n'
-            '      "type": "string",\n'
-            '      "properties": {{}}\n'
-            "    }}\n"
-            "  ],\n"
-            '  "relationships": [\n'
-            "    {{\n"
-            '      "source_name": "string",\n'
-            '      "target_name": "string",\n'
-            '      "type": "string",\n'
-            '      "properties": {{}}\n'
-            "    }}\n"
-            "  ]\n"
-            "}}\n\n"
-            "Texto: {text}"
+            """
+            You are tasked with extracting entities and relationships from a given text. Here is the text you will analyze:
+            
+            <text>
+            {TEXT}
+            </text>
+            
+            Your goal is to identify entities and their relationships within this text, and then present them in a specific JSON format. Follow these steps:
+            
+            1. Carefully read and analyze the text.
+            
+            2. In a <reasoning> section, think through the entities you've identified. Consider which mentions might refer to the same entity and how you can consolidate them.
+            
+            3. Identify and categorize entities:
+               - Look for proper nouns, important concepts, or recurring themes.
+               - Determine a suitable type for each entity (e.g., Person, Organization, Location, Concept).
+               - Note any relevant properties for each entity.
+            
+            4. Identify relationships between entities:
+               - Look for verbs or phrases that connect entities.
+               - Determine the type of relationship (e.g., "works for", "located in", "part of").
+               - Note any relevant properties for each relationship.
+               - Relationships should have a verbal phrase as an example (nacio) + prepositional phrase (EnCiudad) -> nacioenCiudad
+            
+            5. After your analysis, provide your output in the following JSON format, enclosed in triple backticks ():
+            
+            json
+            {{
+              "entities": [
+                {{
+                  "name": "Entity Name",
+                  "type": "Entity Type",
+                  "properties": {{}}
+                }}
+              ],
+              "relationships": [
+                {{
+                  "source_name": "Source Entity Name",
+                  "target_name": "Target Entity Name",
+                  "type": "Relationship Type",
+                  "properties": {{}}
+                }}
+              ]
+            }}
+            ```
+            
+            Remember:
+            - Entity names should be consistent throughout the JSON.
+            - Include all relevant entities and relationships you've identified.
+            - If there are no properties for an entity or relationship, leave the "properties" object empty.
+            - Ensure your JSON is properly formatted and valid.
+            
+            Begin your analysis now, starting with the <reasoning> section, followed by your JSON output.
+            """
         )
 
         def update_relationships(result: ExtractionResult):
