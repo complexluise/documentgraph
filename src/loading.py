@@ -24,7 +24,6 @@ class Neo4JQueryManager:
         MATCH (s:Entity {id: $source_id})
         MATCH (t:Entity {id: $target_id})
         MERGE (s)-[r:RELATES {type: $rel_type}]->(t)
-        SET r += $properties
         """
 
     @staticmethod
@@ -63,38 +62,44 @@ class KnowledgeGraphLoader:
             session.run(
                 Neo4JQueryManager.create_document(),
                 id=document.id,
-                properties=document.dict(exclude_none=True),
+                properties=properties,
             )
 
     def load_entities(self, entities: list[Entity]) -> None:
         with self.driver.session() as session:
             for entity in entities:
+                entity_dict = entity.dict(exclude_none=True)
+                if "properties" in entity_dict and not entity_dict["properties"]:
+                    del entity_dict["properties"]
+
                 session.run(
                     Neo4JQueryManager.create_entity(),
                     id=entity.id,
-                    properties=entity.dict(exclude_none=True),
+                    properties=entity_dict,
                 )
 
     def load_relationships(self, relationships: list[Relationship]) -> None:
         with self.driver.session() as session:
             for rel in relationships:
+                rel = rel.dict(exclude_none=True)
+                if "properties" in rel and not rel["properties"]:
+                    del rel["properties"]
                 session.run(
                     Neo4JQueryManager.create_relationship(),
-                    source_id=rel.source_id,
-                    target_id=rel.target_id,
-                    rel_type=rel.type,
-                    properties=rel.dict(exclude_none=True),
+                    source_id=rel["source_id"],
+                    target_id=rel["target_id"],
+                    rel_type=rel["type"]
                 )
 
-    def load_chunks(self, chunk: TextChunk, document: Document) -> None:
+    def load_chunks(self, chunk: TextChunk, document: Document, entities: list[Entity]) -> None:
         with self.driver.session() as session:
             session.run(
                 Neo4JQueryManager.create_chunk_and_relationships(),
                 id=chunk.id,
-                text=chunk.text,
+                text=chunk.content,
                 embedding=chunk.embedding,
                 doc_id=document.id,
-                entity_ids=[entity.id for entity in chunk.entities],
+                entity_ids=[entity.id for entity in entities],
             )
 
     def load_incremental(
@@ -107,7 +112,7 @@ class KnowledgeGraphLoader:
         self.load_document(document)
         self.load_entities(entities)
         self.load_relationships(relationships)
-        self.load_chunks(chunks, document)
+        self.load_chunks(chunks, document, entities)
 
     def close(self):
         self.driver.close()
