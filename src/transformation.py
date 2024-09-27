@@ -127,10 +127,12 @@ class EntityRelationExtractor:
             updated_relationships = []
             for relationship in result.relationships:
                 source_entity = next(
-                    (e for e in result.entities if e.name == relationship.source_name), None
+                    (e for e in result.entities if e.name == relationship.source_name),
+                    None,
                 )
                 target_entity = next(
-                    (e for e in result.entities if e.name == relationship.target_name), None
+                    (e for e in result.entities if e.name == relationship.target_name),
+                    None,
                 )
                 if source_entity and target_entity:
                     updated_relationship = relationship.model_copy(
@@ -142,7 +144,9 @@ class EntityRelationExtractor:
                 else:
                     updated_relationship = relationship
                 updated_relationships.append(updated_relationship)
-            return ExtractionResult(entities=result.entities, relationships=updated_relationships)
+            return ExtractionResult(
+                entities=result.entities, relationships=updated_relationships
+            )
 
         return prompt | self.llm | self.parser | RunnableLambda(update_relationships)
 

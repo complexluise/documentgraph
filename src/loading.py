@@ -55,9 +55,9 @@ class KnowledgeGraphLoader:
     def load_document(self, document: Document) -> None:
 
         properties = document.dict(exclude_none=True)
-        del properties['content']
-        if 'metadata' in properties and not properties['metadata']:
-            del properties['metadata']
+        del properties["content"]
+        if "metadata" in properties and not properties["metadata"]:
+            del properties["metadata"]
 
         with self.driver.session() as session:
             session.run(
