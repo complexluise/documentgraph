@@ -10,21 +10,27 @@ class Neo4JConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    emb_model: str = "text-embedding-3-small"
-    emb_dimension: int = 1536  # Assuming you're using OpenAI's default embedding size
+    model: str = "text-embedding-3-small"
+    dimension: int = 1536  # Assuming you're using OpenAI's default embedding size
 
 
 class ChunkConfig(BaseModel):
     strategy: str = (
         "recursive"  # Options: "recursive", "character", "semantic", "tiktoken"
     )
-    size: int = 100
+    size: int = 600
     overlap: int = 20
+
+
+class OpenAIConfig(BaseModel):
+    api_key: str = os.getenv("OPENAI_API_KEY")
+    model: str = "gpt-4o-mini-2024-07-18"
 
 
 class ETLConfig(BaseModel):
     n_jobs: int = 4
     graph_db_config: Neo4JConfig = Neo4JConfig()
     chunk_config: ChunkConfig = ChunkConfig()
+    llm_config: OpenAIConfig = OpenAIConfig()
     embedding_config: EmbeddingConfig = EmbeddingConfig()
     model_config = {"arbitrary_types_allowed": True}

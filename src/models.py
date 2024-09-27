@@ -27,8 +27,10 @@ class Entity(BaseModel):
 
 class Relationship(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    source_id: str
-    target_id: str
+    source_name: str = None
+    source_id: str = None
+    target_name: str = None
+    target_id: str = None
     type: str
     properties: dict[str, Any] = Field(default_factory=dict)
 

@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import Tuple
 from src.extraction import DocumentExtractor
 from src.models import Document, TextChunk, Entity, Relationship
 from src.transformation import (
@@ -58,14 +58,14 @@ class DocumentAnalysisPipeline:
         logger.info("Preprocesando documentos")
         return self.preprocessor.process(document)
 
-    def chunk_documents(self, document: Document) -> List[TextChunk]:
+    def chunk_documents(self, document: Document) -> list[TextChunk]:
         """
         Divide los documentos preprocesados en chunks de texto.
         """
         logger.info("Dividiendo documentos en chunks")
         return self.preprocessor.create_chunks(document)
 
-    def generate_embeddings(self, text_chunks: List[TextChunk]) -> List[TextChunk]:
+    def generate_embeddings(self, text_chunks: list[TextChunk]) -> list[TextChunk]:
         """
         Genera embeddings para los chunks de texto.
         """
@@ -78,8 +78,8 @@ class DocumentAnalysisPipeline:
         ]
 
     def extract_entities_and_relationships(
-        self, embedded_chunks: List[TextChunk]
-    ) -> Tuple[List[Entity], List[Relationship]]:
+        self, embedded_chunks: list[TextChunk]
+    ) -> Tuple[list[Entity], list[Relationship]]:
         """
         Extrae entidades y relaciones de los chunks con embeddings.
         """
@@ -95,16 +95,19 @@ class DocumentAnalysisPipeline:
 
     def load_knowledge_graph(
         self,
-        entities: List[Entity],
-        relationships: List[Relationship],
-        embedded_chunks: List[TextChunk],
+        entities: list[Entity],
+        relationships: list[Relationship],
+        embedded_chunks: list[TextChunk],
+        document: Document,
     ) -> None:
         """
         Carga los datos extraídos en el grafo de conocimiento.
         """
         logger.info("Cargando datos en el grafo de conocimiento")
         try:
-            self.graph_loader.load_incremental(entities, relationships, embedded_chunks)
+            self.graph_loader.load_incremental(
+                entities, relationships, embedded_chunks, document=document
+            )
             logger.info("Datos cargados exitosamente en el grafo de conocimiento")
         except Exception as e:
             logger.error(f"Error al cargar datos en el grafo: {str(e)}", exc_info=True)
