@@ -8,8 +8,7 @@ from src.transformation import (
     EntityRelationExtractor,
 )
 from src.loading import KnowledgeGraphLoader
-from src.query import QueryEngine
-from src.config import ETLConfig, ChunkConfig
+from src.config import ETLConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,13 +23,13 @@ class DocumentAnalysisPipeline:
         self.entity_relation_extractor = EntityRelationExtractor(etl_config)
         self.graph_loader = KnowledgeGraphLoader(etl_config)
 
-    def execute_pipeline(self, data_sources: List[str]) -> None:
+    def execute_pipeline(self, input_folder: str) -> None:
         """
         Ejecuta el pipeline ETL completo para análisis de documentos.
         """
         logger.info("Iniciando pipeline de análisis de documentos")
         try:
-            for document in self.extract_documents(data_sources):
+            for document in self.extract_documents(input_folder):
                 logger.info(f"Extrayendo documento: {document.filename}")
                 preprocessed_document = self.preprocess_documents(document)
                 text_chunks = self.chunk_documents(preprocessed_document)
@@ -45,18 +44,12 @@ class DocumentAnalysisPipeline:
             logger.error(f"Error en el pipeline de análisis: {str(e)}", exc_info=True)
             raise
 
-    def extract_documents(self, data_sources: List[str]) -> List[Document]:
+    def extract_documents(self, input_folder: str) -> Document:
         """
         Extrae documentos de las fuentes de datos proporcionadas.
         """
         logger.info("Extrayendo documentos de las fuentes de datos")
-        extracted_documents = []
-        for source in data_sources:
-            try:
-                extracted_documents.append(self.extractor.extract(source))
-            except Exception as e:
-                logger.error(f"Error al extraer de {source}: {str(e)}")
-        return extracted_documents
+        return self.extractor.extract(input_folder)
 
     def preprocess_documents(self, document: Document) -> Document:
         """
@@ -122,4 +115,4 @@ class DocumentAnalysisPipeline:
 if __name__ == "__main__":
     etl_config = ETLConfig()  # Asume que ETLConfig puede ser instanciada sin argumentos
     pipeline = DocumentAnalysisPipeline(etl_config)
-    # Aquí puedes agregar código para ejecutar el pipeline o manejar consultas
+    pipeline.execute_pipeline("data")

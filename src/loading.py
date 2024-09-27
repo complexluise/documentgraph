@@ -7,10 +7,10 @@ class KnowledgeGraphLoader:
     def __init__(self, config: ETLConfig):
         self.config = config
         self.driver = GraphDatabase.driver(
-            config.graph_db_config.neo4j_uri,
+            config.graph_db_config.uri,
             auth=(
-                config.graph_db_config.neo4j_user,
-                config.graph_db_config.neo4j_password,
+                config.graph_db_config.user,
+                config.graph_db_config.password,
             ),
         )
 

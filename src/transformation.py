@@ -50,7 +50,7 @@ class TextProcessor:
 
         elif self.config.chunking_strategy == "semantic":
             text_splitter = SemanticChunker(
-                OpenAIEmbeddings(model=self.config.embedding_config.model_name)
+                OpenAIEmbeddings(model=self.config.embedding_config.emb_model)
             )
             chunks = text_splitter.create_documents([text])
 
@@ -71,7 +71,7 @@ class TextProcessor:
 class EmbeddingGenerator:
     def __init__(self, config: ETLConfig):
         self.config = config
-        self.model = OpenAIEmbeddings(model=self.config.embedding_config.model_name)
+        self.model = OpenAIEmbeddings(model=self.config.embedding_config.emb_model)
 
     def generate(self, chunk: TextChunk) -> list[float]:
         return self.model.embed_query(chunk.text)

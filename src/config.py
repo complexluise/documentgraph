@@ -10,8 +10,8 @@ class Neo4JConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    model_name: str = "text-embedding-3-small"
-    embedding_dimension: int = (
+    emb_model: str = "text-embedding-3-small"
+    emb_dimension: int = (
         1536  # Assuming you're using OpenAI's default embedding size
     )
 
@@ -26,6 +26,10 @@ class ChunkConfig(BaseModel):
 
 class ETLConfig(BaseModel):
     n_jobs: int = 4
-    graph_db_config: Neo4JConfig
-    chunk_config: ChunkConfig
-    embedding_config: EmbeddingConfig
+    graph_db_config: Neo4JConfig = Neo4JConfig()
+    chunk_config: ChunkConfig = ChunkConfig()
+    embedding_config: EmbeddingConfig = EmbeddingConfig()
+
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
