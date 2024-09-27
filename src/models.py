@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 class Document(BaseModel):
     id: str
+    filename: str
     content: str
     metadata: dict[str, Any] = Field(default_factory=dict)
 

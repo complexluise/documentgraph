@@ -27,12 +27,14 @@ class DocumentAnalysisPipeline:
         """
         logger.info("Iniciando pipeline de análisis de documentos")
         try:
-            raw_documents = self.extract_documents(data_sources)
-            preprocessed_documents = self.preprocess_documents(raw_documents)
-            text_chunks = self.chunk_documents(preprocessed_documents)
-            embedded_chunks = self.generate_embeddings(text_chunks)
-            entities, relationships = self.extract_entities_and_relationships(embedded_chunks)
-            self.load_knowledge_graph(entities, relationships, embedded_chunks)
+            for document in self.extract_documents(data_sources):
+                logger.info(f"Extrayendo documento: {document.filename}")
+                preprocessed_document = self.preprocess_documents(document)
+                text_chunks = self.chunk_documents(preprocessed_document)
+                embedded_chunks = self.generate_embeddings(text_chunks)
+                entities, relationships = self.extract_entities_and_relationships(embedded_chunks)
+                self.load_knowledge_graph(entities, relationships, embedded_chunks)
+
             logger.info("Pipeline de análisis de documentos completado con éxito")
         except Exception as e:
             logger.error(f"Error en el pipeline de análisis: {str(e)}", exc_info=True)
@@ -51,31 +53,34 @@ class DocumentAnalysisPipeline:
                 logger.error(f"Error al extraer de {source}: {str(e)}")
         return extracted_documents
 
-    def preprocess_documents(self, documents: List[Document]) -> List[Document]:
+    def preprocess_documents(self, document: Document) -> Document:
         """
         Preprocesa los documentos extraídos.
         """
         logger.info("Preprocesando documentos")
-        return [self.preprocessor.preprocess(doc) for doc in documents]
+        return self.preprocessor.preprocess(document)
 
-    def chunk_documents(self, documents: List[Document]) -> List[TextChunk]:
+    def chunk_documents(self, document: Document) -> List[TextChunk]:
         """
         Divide los documentos preprocesados en chunks de texto.
         """
         logger.info("Dividiendo documentos en chunks")
-        text_chunks = []
-        for doc in documents:
-            text_chunks.extend(self.preprocessor.create_chunks(doc))
-        return text_chunks
+        return self.preprocessor.create_chunks(document)
 
     def generate_embeddings(self, text_chunks: List[TextChunk]) -> List[TextChunk]:
         """
         Genera embeddings para los chunks de texto.
         """
         logger.info("Generando embeddings para los chunks")
-        return [self.embedding_generator.generate(chunk) for chunk in text_chunks]
+        return [
+            chunk.model_copy(update={"embedding": self.embedding_generator.generate(chunk)})
+            for chunk in text_chunks
+        ]
 
-    def extract_entities_and_relationships(self, embedded_chunks: List[TextChunk]) -> Tuple[List[Entity], List[Relationship]]:
+    def extract_entities_and_relationships(
+            self,
+            embedded_chunks: List[TextChunk]
+    ) -> Tuple[List[Entity], List[Relationship]]:
         """
         Extrae entidades y relaciones de los chunks con embeddings.
         """

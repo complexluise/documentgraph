@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 
 from src.config import ETLConfig
@@ -9,12 +10,15 @@ class DataExtractor(ABC):
         self.config = config
 
     @abstractmethod
-    def extract(self, source: str) -> Document:
-        # Implementación de la extracción
+    def extract(self) -> Document:
         pass
 
 
 class DocumentExtractor(DataExtractor):
-    def extract(self, source: str) -> Document:
-        # Implementación de la extracción de documentos
-        pass
+    def extract(self) -> Document:
+        for filename in os.listdir(self.config.input_folder):
+            if filename.endswith('.txt'):
+                file_path = os.path.join(self.config.input_folder, filename)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    content = file.read()
+                    yield Document(filename=filename, content=content)
