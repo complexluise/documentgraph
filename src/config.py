@@ -3,6 +3,12 @@ import os
 from pydantic import BaseModel
 
 
+class Neo4JConfig(BaseModel):
+    uri: str = os.getenv("NEO4J_URI")
+    user: str = os.getenv("NEO4J_USER")
+    password: str = os.getenv("NEO4J_PASSWORD")
+
+
 class EmbeddingConfig(BaseModel):
     model_name: str = "text-embedding-3-small"
     embedding_dimension: int = (
@@ -20,7 +26,6 @@ class ChunkConfig(BaseModel):
 
 class ETLConfig(BaseModel):
     n_jobs: int = 4
-    graph_db_url: str = os.getenv("NEO4J_URI")
-    llm_api_key: str = os.getenv("OPENAI_API_KEY")
+    graph_db_config: Neo4JConfig
     chunk_config: ChunkConfig
     embedding_config: EmbeddingConfig
