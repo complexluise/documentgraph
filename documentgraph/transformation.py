@@ -15,8 +15,8 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate
 
-from src.config import ETLConfig
-from src.models import Document, TextChunk, Entity, Relationship, ExtractionResult
+from documentgraph.config import ETLConfig
+from documentgraph.models import Document, TextChunk, Entity, Relationship, ExtractionResult
 
 
 class TextProcessor:

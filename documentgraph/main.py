@@ -1,14 +1,14 @@
 import logging
 from typing import Tuple
-from src.extraction import DocumentExtractor
-from src.models import Document, TextChunk, Entity, Relationship, ExtractionResult
-from src.transformation import (
+from documentgraph.extraction import DocumentExtractor
+from documentgraph.models import Document, TextChunk, Entity, Relationship, ExtractionResult
+from documentgraph.transformation import (
     TextProcessor,
     EmbeddingGenerator,
     EntityRelationExtractor,
 )
-from src.loading import KnowledgeGraphLoader
-from src.config import ETLConfig
+from documentgraph.loading import KnowledgeGraphLoader
+from documentgraph.config import ETLConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
