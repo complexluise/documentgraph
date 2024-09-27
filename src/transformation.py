@@ -98,7 +98,7 @@ class EntityRelationExtractor:
             )
         )
 
-    def extract(self, chunk: TextChunk) -> Tuple[list[Entity], list[Relationship]]:
+    def extract_chain(self):
         prompt = ChatPromptTemplate.from_template(
             "Extrae las entidades y relaciones del siguiente texto.\n"
             "Primero razona un poco para identificar cuales son las mismas entidades.\n"
@@ -123,28 +123,29 @@ class EntityRelationExtractor:
             "Texto: {text}"
         )
 
-        chain = prompt | self.llm | self.parser
-
-        result: ExtractionResult = chain.invoke({"text": chunk.content})
-
-        # Actualizar los IDs de las relaciones
-        updated_relationships = []
-        for relationship in result.relationships:
-            source_entity = next(
-                (e for e in result.entities if e.name == relationship.source_name), None
-            )
-            target_entity = next(
-                (e for e in result.entities if e.name == relationship.target_name), None
-            )
-            if source_entity and target_entity:
-                updated_relationship = relationship.model_copy(
-                    update={
-                        "source_id": source_entity.id,
-                        "target_id": target_entity.id,
-                    }
+        def update_relationships(result: ExtractionResult):
+            updated_relationships = []
+            for relationship in result.relationships:
+                source_entity = next(
+                    (e for e in result.entities if e.name == relationship.source_name), None
                 )
-            else:
-                updated_relationship = relationship
-            updated_relationships.append(updated_relationship)
+                target_entity = next(
+                    (e for e in result.entities if e.name == relationship.target_name), None
+                )
+                if source_entity and target_entity:
+                    updated_relationship = relationship.model_copy(
+                        update={
+                            "source_id": source_entity.id,
+                            "target_id": target_entity.id,
+                        }
+                    )
+                else:
+                    updated_relationship = relationship
+                updated_relationships.append(updated_relationship)
+            return ExtractionResult(entities=result.entities, relationships=updated_relationships)
 
-        return result.entities, updated_relationships
+        return prompt | self.llm | self.parser | RunnableLambda(update_relationships)
+
+    def extract(self, chunks: list[TextChunk]) -> list[ExtractionResult]:
+        chain = self.extract_chain()
+        return chain.batch([{"text": chunk.content} for chunk in chunks])
