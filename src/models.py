@@ -8,7 +8,7 @@ class Document(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class Chunk(BaseModel):
+class TextChunk(BaseModel):
     id: str
     content: str
     document_id: str

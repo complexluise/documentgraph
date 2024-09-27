@@ -1,8 +1,8 @@
-from src.config import Config
+from src.config import ETLConfig
 
 
-class QueryManager:
-    def __init__(self, config: Config):
+class QueryEngine:
+    def __init__(self, config: ETLConfig):
         self.config = config
 
     def process_query(self, query: str) -> str:

@@ -1,38 +1,38 @@
 from typing import Tuple
 
-from src.config import Config
-from src.models import Document, Chunk, Entity, Relationship
+from src.config import ETLConfig
+from src.models import Document, TextChunk, Entity, Relationship
 
 
-class TextProcessor:
-    def __init__(self, config: Config):
+class TextPreprocessor:
+    def __init__(self, config: ETLConfig):
         self.config = config
 
-    def process(self, document: Document) -> Document:
+    def preprocess(self, document: Document) -> Document:
         # Implementación del procesamiento de texto
         pass
 
-    def create_chunks(self, document: Document) -> list[Chunk]:
+    def create_chunks(self, document: Document) -> list[TextChunk]:
         # Implementación de la creación de chunks
         pass
 
 
 class EmbeddingGenerator:
-    def __init__(self, config: Config):
+    def __init__(self, config: ETLConfig):
         self.config = config
 
-    def generate(self, chunk: Chunk) -> Chunk:
+    def generate(self, chunk: TextChunk) -> TextChunk:
         # Aquí se llamaría a la API externa para generar embeddings
         # Por ahora, solo simularemos la generación
         chunk.embedding = [0.0] * self.config.embedding_dimension
         return chunk
 
 
-class EntityRelationAnalyzer:
-    def __init__(self, config: Config):
+class EntityRelationExtractor:
+    def __init__(self, config: ETLConfig):
         self.config = config
 
-    def analyze(self, chunk: Chunk) -> Tuple[list[Entity], list[Relationship]]:
+    def extract(self, chunk: TextChunk) -> Tuple[list[Entity], list[Relationship]]:
         # Implementación del análisis de entidades y relaciones
         pass
 

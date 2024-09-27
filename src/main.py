@@ -1,110 +1,112 @@
 import logging
 from typing import List, Tuple
-from src.extraction import DataExtractor
-from src.models import Document, Chunk, Entity, Relationship
-from src.transformation import TextProcessor, EmbeddingGenerator, EntityRelationAnalyzer
-from src.loading import GraphLoader
-from src.query import QueryManager
-from src.config import Config
+from src.extraction import DocumentExtractor
+from src.models import Document, TextChunk, Entity, Relationship
+from src.transformation import TextPreprocessor, EmbeddingGenerator, EntityRelationExtractor
+from src.loading import KnowledgeGraphLoader
+from src.query import QueryEngine
+from src.config import ETLConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class GenAIApplication:
-    def __init__(self, config: Config):
-        self.config = config
-        self.extractor = DataExtractor(config)
-        self.processor = TextProcessor(config)
-        self.embedding_generator = EmbeddingGenerator(config)
-        self.analyzer = EntityRelationAnalyzer(config)
-        self.loader = GraphLoader(config)
-        self.query_manager = QueryManager(config)
 
-    def run_pipeline(self, sources: List[str]) -> None:
+class DocumentAnalysisPipeline:
+    def __init__(self, config: ETLConfig):
+        self.config = config
+        self.extractor = DocumentExtractor(config)
+        self.preprocessor = TextPreprocessor(config)
+        self.embedding_generator = EmbeddingGenerator(config)
+        self.entity_relation_extractor = EntityRelationExtractor(config)
+        self.graph_loader = KnowledgeGraphLoader(config)
+        self.query_engine = QueryEngine(config)
+
+    def execute_pipeline(self, data_sources: List[str]) -> None:
         """
-        Ejecuta el pipeline ETL completo.
+        Ejecuta el pipeline ETL completo para análisis de documentos.
         """
-        logger.info("Starting ETL pipeline")
+        logger.info("Iniciando pipeline de análisis de documentos")
         try:
-            documents = self.extract_data(sources)
-            processed_docs = self.process_documents(documents)
-            chunks = self.create_chunks(processed_docs)
-            enriched_chunks = self.enrich_chunks(chunks)
-            entities, relationships = self.analyze_chunks(enriched_chunks)
-            self.load_to_graph(entities, relationships, chunks)
-            logger.info("ETL pipeline completed successfully")
+            raw_documents = self.extract_documents(data_sources)
+            preprocessed_documents = self.preprocess_documents(raw_documents)
+            text_chunks = self.chunk_documents(preprocessed_documents)
+            embedded_chunks = self.generate_embeddings(text_chunks)
+            entities, relationships = self.extract_entities_and_relationships(embedded_chunks)
+            self.load_knowledge_graph(entities, relationships, embedded_chunks)
+            logger.info("Pipeline de análisis de documentos completado con éxito")
         except Exception as e:
-            logger.error(f"Error in ETL pipeline: {str(e)}", exc_info=True)
+            logger.error(f"Error en el pipeline de análisis: {str(e)}", exc_info=True)
             raise
 
-    def extract_data(self, sources: List[str]) -> List[Document]:
+    def extract_documents(self, data_sources: List[str]) -> List[Document]:
         """
-        Extrae datos de las fuentes proporcionadas.
+        Extrae documentos de las fuentes de datos proporcionadas.
         """
-        logger.info("Extracting data from sources")
-        documents = []
-        for source in sources:
+        logger.info("Extrayendo documentos de las fuentes de datos")
+        extracted_documents = []
+        for source in data_sources:
             try:
-                documents.append(self.extractor.extract(source))
+                extracted_documents.append(self.extractor.extract(source))
             except Exception as e:
-                logger.error(f"Error extracting from {source}: {str(e)}")
-        return documents
+                logger.error(f"Error al extraer de {source}: {str(e)}")
+        return extracted_documents
 
-    def process_documents(self, documents: List[Document]) -> List[Document]:
+    def preprocess_documents(self, documents: List[Document]) -> List[Document]:
         """
-        Procesa los documentos extraídos.
+        Preprocesa los documentos extraídos.
         """
-        logger.info("Processing documents")
-        return [self.processor.process(doc) for doc in documents]
+        logger.info("Preprocesando documentos")
+        return [self.preprocessor.preprocess(doc) for doc in documents]
 
-    def create_chunks(self, documents: List[Document]) -> List[Chunk]:
+    def chunk_documents(self, documents: List[Document]) -> List[TextChunk]:
         """
-        Crea chunks a partir de los documentos procesados.
+        Divide los documentos preprocesados en chunks de texto.
         """
-        logger.info("Creating chunks from documents")
-        chunks = []
+        logger.info("Dividiendo documentos en chunks")
+        text_chunks = []
         for doc in documents:
-            chunks.extend(self.processor.create_chunks(doc))
-        return chunks
+            text_chunks.extend(self.preprocessor.create_chunks(doc))
+        return text_chunks
 
-    def enrich_chunks(self, chunks: List[Chunk]) -> List[Chunk]:
+    def generate_embeddings(self, text_chunks: List[TextChunk]) -> List[TextChunk]:
         """
-        Enriquece los chunks con embeddings.
+        Genera embeddings para los chunks de texto.
         """
-        logger.info("Enriching chunks with embeddings")
-        return [self.embedding_generator.generate(chunk) for chunk in chunks]
+        logger.info("Generando embeddings para los chunks")
+        return [self.embedding_generator.generate(chunk) for chunk in text_chunks]
 
-    def analyze_chunks(self, chunks: List[Chunk]) -> Tuple[List[Entity], List[Relationship]]:
+    def extract_entities_and_relationships(self, embedded_chunks: List[TextChunk]) -> Tuple[List[Entity], List[Relationship]]:
         """
-        Analiza los chunks para extraer entidades y relaciones.
+        Extrae entidades y relaciones de los chunks con embeddings.
         """
-        logger.info("Analyzing chunks for entities and relationships")
+        logger.info("Extrayendo entidades y relaciones")
         entities, relationships = [], []
-        for chunk in chunks:
-            chunk_entities, chunk_relationships = self.analyzer.analyze(chunk)
+        for chunk in embedded_chunks:
+            chunk_entities, chunk_relationships = self.entity_relation_extractor.extract(chunk)
             entities.extend(chunk_entities)
             relationships.extend(chunk_relationships)
         return entities, relationships
 
-    def load_to_graph(self, entities: List[Entity], relationships: List[Relationship], chunks: List[Chunk]) -> None:
+    def load_knowledge_graph(self, entities: List[Entity], relationships: List[Relationship], embedded_chunks: List[TextChunk]) -> None:
         """
-        Carga los datos en la base de datos de grafos.
+        Carga los datos extraídos en el grafo de conocimiento.
         """
-        logger.info("Loading data to graph database")
-        self.loader.load_incremental(entities, relationships, chunks)
+        logger.info("Cargando datos en el grafo de conocimiento")
+        self.graph_loader.load_incremental(entities, relationships, embedded_chunks)
 
-    def handle_user_query(self, query: str) -> str:
+    def process_query(self, query: str) -> str:
         """
-        Maneja las consultas de usuario.
+        Procesa consultas de usuario utilizando el grafo de conocimiento.
         """
-        logger.info(f"Handling user query: {query}")
+        logger.info(f"Procesando consulta de usuario: {query}")
         try:
-            return self.query_manager.process_query(query)
+            return self.query_engine.process_query(query)
         except Exception as e:
-            logger.error(f"Error processing query: {str(e)}", exc_info=True)
-            return "An error occurred while processing your query. Please try again."
+            logger.error(f"Error al procesar la consulta: {str(e)}", exc_info=True)
+            return "Se produjo un error al procesar su consulta. Por favor, inténtelo de nuevo."
+
 
 if __name__ == "__main__":
-    config = Config()  # Asume que Config puede ser instanciada sin argumentos
-    app = GenAIApplication(config)
+    etl_config = ETLConfig()  # Asume que ETLConfig puede ser instanciada sin argumentos
+    pipeline = DocumentAnalysisPipeline(etl_config)
     # Aquí puedes agregar código para ejecutar el pipeline o manejar consultas
