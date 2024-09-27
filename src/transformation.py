@@ -1,7 +1,10 @@
+import json
+import re
 import uuid
 
 from typing import Tuple
 
+from langchain_core.runnables import RunnableLambda
 from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     CharacterTextSplitter,
@@ -50,7 +53,7 @@ class TextProcessor:
 
         elif self.config.chunk_config.strategy == "semantic":
             text_splitter = SemanticChunker(
-                OpenAIEmbeddings(model=self.config.embedding_config.emb_model)
+                OpenAIEmbeddings(model=self.config.embedding_config.model)
             )
             chunks = text_splitter.create_documents([text])
 
@@ -75,49 +78,73 @@ class TextProcessor:
 class EmbeddingGenerator:
     def __init__(self, config: ETLConfig):
         self.config = config
-        self.model = OpenAIEmbeddings(model=self.config.embedding_config.emb_model)
+        self.model = OpenAIEmbeddings(model=self.config.embedding_config.model)
 
     def generate(self, chunk: TextChunk) -> list[float]:
-        return self.model.embed_query(chunk.text)
+        return self.model.embed_query(chunk.content)
 
 
 class EntityRelationExtractor:
     def __init__(self, config: ETLConfig):
         self.config = config
-        self.llm = ChatOpenAI(model_name="gpt-3.5-turbo-16k")
-        self.parser = PydanticOutputParser(pydantic_object=ExtractionResult)
+        self.llm = ChatOpenAI(model_name=config.llm_config.model)
+        self.parser = RunnableLambda(
+            lambda x: ExtractionResult(
+                **json.loads(
+                    re.search(
+                        r"(?:^|\n)```json\n([\s\S]*?)\n```", x.content, re.DOTALL
+                    ).group(1)
+                )
+            )
+        )
 
     def extract(self, chunk: TextChunk) -> Tuple[list[Entity], list[Relationship]]:
         prompt = ChatPromptTemplate.from_template(
-            "Extrae las entidades y relaciones del siguiente texto. "
-            "Proporciona la salida en formato JSON que cumpla con el siguiente esquema:\n"
-            "{format_instructions}\n\n"
+            "Extrae las entidades y relaciones del siguiente texto.\n"
+            "Primero razona un poco para identificar cuales son las mismas entidades.\n"
+            "Proporciona la salida en formato JSON inline code with ``` que cumpla con el siguiente esquema:\n"
+            "{{\n"
+            '  "entities": [\n'
+            "    {{\n"
+            '      "name": "string",\n'
+            '      "type": "string",\n'
+            '      "properties": {{}}\n'
+            "    }}\n"
+            "  ],\n"
+            '  "relationships": [\n'
+            "    {{\n"
+            '      "source_name": "string",\n'
+            '      "target_name": "string",\n'
+            '      "type": "string",\n'
+            '      "properties": {{}}\n'
+            "    }}\n"
+            "  ]\n"
+            "}}\n\n"
             "Texto: {text}"
         )
 
         chain = prompt | self.llm | self.parser
 
-        result = chain.invoke(
-            {
-                "format_instructions": self.parser.get_format_instructions(),
-                "text": chunk.content,
-            }
-        )
-
-        # Asignar IDs únicos a las entidades
-        for entity in result.entities:
-            entity.id = str(uuid.uuid4())
+        result: ExtractionResult = chain.invoke({"text": chunk.content})
 
         # Actualizar los IDs de las relaciones
+        updated_relationships = []
         for relationship in result.relationships:
             source_entity = next(
-                (e for e in result.entities if e.name == relationship.source_id), None
+                (e for e in result.entities if e.name == relationship.source_name), None
             )
             target_entity = next(
-                (e for e in result.entities if e.name == relationship.target_id), None
+                (e for e in result.entities if e.name == relationship.target_name), None
             )
             if source_entity and target_entity:
-                relationship.source_id = source_entity.id
-                relationship.target_id = target_entity.id
+                updated_relationship = relationship.model_copy(
+                    update={
+                        "source_id": source_entity.id,
+                        "target_id": target_entity.id,
+                    }
+                )
+            else:
+                updated_relationship = relationship
+            updated_relationships.append(updated_relationship)
 
-        return result.entities, result.relationships
+        return result.entities, updated_relationships
