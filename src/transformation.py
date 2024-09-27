@@ -92,7 +92,7 @@ class EntityRelationExtractor:
             lambda x: ExtractionResult(
                 **json.loads(
                     re.search(
-                        r"(?:^|\n)```json\n([\s\S]*?)\n```", x.content, re.DOTALL
+                        r"```\s*json\s*([\s\S]*?)```", x.content, re.DOTALL
                     ).group(1)
                 )
             )
@@ -104,7 +104,7 @@ class EntityRelationExtractor:
             You are tasked with extracting entities and relationships from a given text. Here is the text you will analyze:
             
             <text>
-            {TEXT}
+            {text}
             </text>
             
             Your goal is to identify entities and their relationships within this text, and then present them in a specific JSON format. Follow these steps:
