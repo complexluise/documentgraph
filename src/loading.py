@@ -34,9 +34,8 @@ class Neo4JQueryManager:
     @staticmethod
     def create_chunks_and_relationships():
         return """
-        UNWIND $chunks AS chunk
-        CREATE (c:TextChunk {id: chunk.id, text: chunk.text, embedding: chunk.embedding})
-        WITH c, chunk
+        CREATE (c:TextChunk {id: $chunk.id, text: $chunk.text, embedding: $chunk.embedding})
+        WITH c, $chunk AS chunk
         MATCH (d:Document {id: $doc_id})
         CREATE (d)-[:HAS_CHUNK]->(c)
         WITH c, chunk
@@ -84,7 +83,7 @@ class KnowledgeGraphLoader:
             document (Document): El documento a cargar.
 
         Raises:
-            Exception: Si ocurre un error durante la carga del documento.
+            Exception: Sí ocurre un error durante la carga del documento.
         """
         properties = document.dict(exclude_none=True)
         del properties["content"]
@@ -132,7 +131,8 @@ class KnowledgeGraphLoader:
     def load_chunk(self, chunk: TextChunk, document: Document, entities: list[Entity],
                    prev_chunk_id: str = None) -> None:
         """
-        Carga fragmentos de texto en el grafo de conocimiento.
+        Carga un fragmento de texto en el grafo de conocimiento.
+
         Args:
             chunk (TextChunk): El fragmento de texto a cargar.
             document (Document): El documento al que pertenece el fragmento.
@@ -142,7 +142,6 @@ class KnowledgeGraphLoader:
         """
         try:
             with self.driver.session() as session:
-
                 chunk_data = {
                     "id": chunk.id,
                     "text": chunk.content,
@@ -153,9 +152,10 @@ class KnowledgeGraphLoader:
 
                 session.run(
                     Neo4JQueryManager.create_chunks_and_relationships(),
-                    chunks=chunk_data,
-                    doc_id=document.id,
+                    chunk=chunk_data,
+                    doc_id=document.id
                 )
+
             logger.info(f"Cargado chunk {chunk.id} fragmentos exitosamente")
         except Exception as e:
             logger.error(f"Error al cargar fragmentos: {str(e)}")
