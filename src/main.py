@@ -97,16 +97,28 @@ class DocumentAnalysisPipeline:
         """
         logger.info("Cargando datos en el grafo de conocimiento")
         try:
-            for i, result in enumerate(extraction_results):
-                self.graph_loader.load_incremental(  # TODO terminar de probar
-                    result.entities, result.relationships, embedded_chunks[i], document
-                )
+            # Load document first
+            self.graph_loader.load_document(document)
+
+            prev_chunk_id = None
+            for chunk, result in zip(embedded_chunks, extraction_results):
+                # Load entities for this chunk
+                self.graph_loader.load_entities(result.entities)
+
+                # Load relationships for this chunk
+                self.graph_loader.load_relationships(result.relationships)
+
+                # Load the chunk with its entities and maintain NEXT relationship
+                self.graph_loader.load_chunks(chunk, document, result.entities, prev_chunk_id)
+
+                # Update prev_chunk_id for the next iteration
+                prev_chunk_id = chunk.id
+
             logger.info("Datos cargados exitosamente en el grafo de conocimiento")
         except Exception as e:
             logger.error(f"Error al cargar datos en el grafo: {str(e)}", exc_info=True)
         finally:
             self.graph_loader.close()
-
 
 if __name__ == "__main__":
     etl_config = ETLConfig()  # Asume que ETLConfig puede ser instanciada sin argumentos
