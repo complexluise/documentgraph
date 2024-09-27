@@ -1,7 +1,7 @@
 import logging
 from typing import Tuple
 from src.extraction import DocumentExtractor
-from src.models import Document, TextChunk, Entity, Relationship
+from src.models import Document, TextChunk, Entity, Relationship, ExtractionResult
 from src.transformation import (
     TextProcessor,
     EmbeddingGenerator,
@@ -95,9 +95,8 @@ class DocumentAnalysisPipeline:
 
     def load_knowledge_graph(
         self,
-        entities: list[Entity],
-        relationships: list[Relationship],
-        embedded_chunks: list[TextChunk],
+        extraction_results: list[ExtractionResult],
+        embedded_chunks: TextChunk,
         document: Document,
     ) -> None:
         """
@@ -105,9 +104,10 @@ class DocumentAnalysisPipeline:
         """
         logger.info("Cargando datos en el grafo de conocimiento")
         try:
-            self.graph_loader.load_incremental(
-                entities, relationships, embedded_chunks, document=document
-            )
+            for i, result in enumerate(extraction_results):
+                self.graph_loader.load_incremental(
+                    result.entities, result.relationships, embedded_chunks[i], document
+                )
             logger.info("Datos cargados exitosamente en el grafo de conocimiento")
         except Exception as e:
             logger.error(f"Error al cargar datos en el grafo: {str(e)}", exc_info=True)
