@@ -17,8 +17,8 @@ class DataExtractor(ABC):
 class DocumentExtractor(DataExtractor):
     def extract(self) -> Document:
         for filename in os.listdir(self.config.input_folder):
-            if filename.endswith('.txt'):
+            if filename.endswith(".txt"):
                 file_path = os.path.join(self.config.input_folder, filename)
-                with open(file_path, 'r', encoding='utf-8') as file:
+                with open(file_path, "r", encoding="utf-8") as file:
                     content = file.read()
                     yield Document(filename=filename, content=content)

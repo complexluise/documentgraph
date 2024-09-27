@@ -2,7 +2,11 @@ import logging
 from typing import List, Tuple
 from src.extraction import DocumentExtractor
 from src.models import Document, TextChunk, Entity, Relationship
-from src.transformation import TextPreprocessor, EmbeddingGenerator, EntityRelationExtractor
+from src.transformation import (
+    TextPreprocessor,
+    EmbeddingGenerator,
+    EntityRelationExtractor,
+)
 from src.loading import KnowledgeGraphLoader
 from src.query import QueryEngine
 from src.config import ETLConfig
@@ -32,7 +36,9 @@ class DocumentAnalysisPipeline:
                 preprocessed_document = self.preprocess_documents(document)
                 text_chunks = self.chunk_documents(preprocessed_document)
                 embedded_chunks = self.generate_embeddings(text_chunks)
-                entities, relationships = self.extract_entities_and_relationships(embedded_chunks)
+                entities, relationships = self.extract_entities_and_relationships(
+                    embedded_chunks
+                )
                 self.load_knowledge_graph(entities, relationships, embedded_chunks)
 
             logger.info("Pipeline de análisis de documentos completado con éxito")
@@ -73,13 +79,14 @@ class DocumentAnalysisPipeline:
         """
         logger.info("Generando embeddings para los chunks")
         return [
-            chunk.model_copy(update={"embedding": self.embedding_generator.generate(chunk)})
+            chunk.model_copy(
+                update={"embedding": self.embedding_generator.generate(chunk)}
+            )
             for chunk in text_chunks
         ]
 
     def extract_entities_and_relationships(
-            self,
-            embedded_chunks: List[TextChunk]
+        self, embedded_chunks: List[TextChunk]
     ) -> Tuple[List[Entity], List[Relationship]]:
         """
         Extrae entidades y relaciones de los chunks con embeddings.
@@ -87,12 +94,19 @@ class DocumentAnalysisPipeline:
         logger.info("Extrayendo entidades y relaciones")
         entities, relationships = [], []
         for chunk in embedded_chunks:
-            chunk_entities, chunk_relationships = self.entity_relation_extractor.extract(chunk)
+            chunk_entities, chunk_relationships = (
+                self.entity_relation_extractor.extract(chunk)
+            )
             entities.extend(chunk_entities)
             relationships.extend(chunk_relationships)
         return entities, relationships
 
-    def load_knowledge_graph(self, entities: List[Entity], relationships: List[Relationship], embedded_chunks: List[TextChunk]) -> None:
+    def load_knowledge_graph(
+        self,
+        entities: List[Entity],
+        relationships: List[Relationship],
+        embedded_chunks: List[TextChunk],
+    ) -> None:
         """
         Carga los datos extraídos en el grafo de conocimiento.
         """

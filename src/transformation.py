@@ -35,4 +35,3 @@ class EntityRelationExtractor:
     def extract(self, chunk: TextChunk) -> Tuple[list[Entity], list[Relationship]]:
         # Implementación del análisis de entidades y relaciones
         pass
-
