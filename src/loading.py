@@ -107,7 +107,7 @@ class KnowledgeGraphLoader:
         with self.driver.session() as session:
             for entity in entities:
                 entity_dict = entity.dict(exclude_none=True)
-                if "properties" in entity_dict and not entity_dict["properties"]:
+                if "properties" in entity_dict:
                     del entity_dict["properties"]
 
                 session.run(
@@ -133,6 +133,11 @@ class KnowledgeGraphLoader:
                    prev_chunk_id: str = None) -> None:
         """
         Carga fragmentos de texto en el grafo de conocimiento.
+        Args:
+            chunk (TextChunk): El fragmento de texto a cargar.
+            document (Document): El documento al que pertenece el fragmento.
+            entities (list[Entity]): Las entidades asociadas al fragmento.
+            prev_chunk_id (str, optional): El ID del fragmento previo.
 
         """
         try:
