@@ -1,12 +1,19 @@
-from typing import Tuple, List
+import uuid
+
+from typing import Tuple
+
 from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     CharacterTextSplitter,
 )
 from langchain_experimental.text_splitter import SemanticChunker
+from langchain_openai import ChatOpenAI
 from langchain_openai.embeddings import OpenAIEmbeddings
-from src.config import ChunkConfig, ETLConfig
-from src.models import Document, TextChunk, Entity, Relationship
+from langchain.output_parsers import PydanticOutputParser
+from langchain.prompts import ChatPromptTemplate
+
+from src.config import ETLConfig
+from src.models import Document, TextChunk, Entity, Relationship, ExtractionResult
 
 
 class TextProcessor:
@@ -18,7 +25,7 @@ class TextProcessor:
         # Implementación del procesamiento de texto
         return document
 
-    def create_chunks(self, document: Document) -> List[TextChunk]:
+    def create_chunks(self, document: Document) -> list[TextChunk]:
         text = document.content
         chunks = []
 
@@ -66,14 +73,47 @@ class EmbeddingGenerator:
         self.config = config
         self.model = OpenAIEmbeddings(model=self.config.embedding_config.model_name)
 
-    def generate(self, chunk: TextChunk) -> List[float]:
+    def generate(self, chunk: TextChunk) -> list[float]:
         return self.model.embed_query(chunk.text)
 
 
 class EntityRelationExtractor:
     def __init__(self, config: ETLConfig):
         self.config = config
+        self.llm = ChatOpenAI(model_name="gpt-3.5-turbo-16k")
+        self.parser = PydanticOutputParser(pydantic_object=ExtractionResult)
 
     def extract(self, chunk: TextChunk) -> Tuple[list[Entity], list[Relationship]]:
-        # Implementación del análisis de entidades y relaciones
-        pass
+        prompt = ChatPromptTemplate.from_template(
+            "Extrae las entidades y relaciones del siguiente texto. "
+            "Proporciona la salida en formato JSON que cumpla con el siguiente esquema:\n"
+            "{format_instructions}\n\n"
+            "Texto: {text}"
+        )
+
+        chain = prompt | self.llm | self.parser
+
+        result = chain.invoke(
+            {
+                "format_instructions": self.parser.get_format_instructions(),
+                "text": chunk.content,
+            }
+        )
+
+        # Asignar IDs únicos a las entidades
+        for entity in result.entities:
+            entity.id = str(uuid.uuid4())
+
+        # Actualizar los IDs de las relaciones
+        for relationship in result.relationships:
+            source_entity = next(
+                (e for e in result.entities if e.name == relationship.source_id), None
+            )
+            target_entity = next(
+                (e for e in result.entities if e.name == relationship.target_id), None
+            )
+            if source_entity and target_entity:
+                relationship.source_id = source_entity.id
+                relationship.target_id = target_entity.id
+
+        return result.entities, result.relationships

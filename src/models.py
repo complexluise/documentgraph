@@ -29,3 +29,10 @@ class Relationship(BaseModel):
     target_id: str
     type: str
     properties: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExtractionResult(BaseModel):
+    entities: list[Entity] = Field(description="Lista de entidades extraídas")
+    relationships: list[Relationship] = Field(
+        description="Lista de relaciones extraídas"
+    )
