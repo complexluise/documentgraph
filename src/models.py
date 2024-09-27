@@ -1,16 +1,17 @@
+import uuid
 from typing import Any
 from pydantic import BaseModel, Field
 
 
 class Document(BaseModel):
-    id: str
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     filename: str
     content: str
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class TextChunk(BaseModel):
-    id: str
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     content: str
     document_id: str
     next_chunk_id: str = None
@@ -18,13 +19,14 @@ class TextChunk(BaseModel):
 
 
 class Entity(BaseModel):
-    id: str
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     type: str
     properties: dict[str, Any] = Field(default_factory=dict)
 
 
 class Relationship(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     source_id: str
     target_id: str
     type: str

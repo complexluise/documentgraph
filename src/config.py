@@ -11,17 +11,15 @@ class Neo4JConfig(BaseModel):
 
 class EmbeddingConfig(BaseModel):
     emb_model: str = "text-embedding-3-small"
-    emb_dimension: int = (
-        1536  # Assuming you're using OpenAI's default embedding size
-    )
+    emb_dimension: int = 1536  # Assuming you're using OpenAI's default embedding size
 
 
 class ChunkConfig(BaseModel):
-    chunking_strategy: str = (
+    strategy: str = (
         "recursive"  # Options: "recursive", "character", "semantic", "tiktoken"
     )
-    chunk_size: int = 100
-    chunk_overlap: int = 20
+    size: int = 100
+    overlap: int = 20
 
 
 class ETLConfig(BaseModel):
@@ -29,7 +27,4 @@ class ETLConfig(BaseModel):
     graph_db_config: Neo4JConfig = Neo4JConfig()
     chunk_config: ChunkConfig = ChunkConfig()
     embedding_config: EmbeddingConfig = EmbeddingConfig()
-
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
+    model_config = {"arbitrary_types_allowed": True}

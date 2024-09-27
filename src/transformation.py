@@ -29,32 +29,32 @@ class TextProcessor:
         text = document.content
         chunks = []
 
-        if self.config.chunking_strategy == "recursive":
+        if self.config.chunk_config.strategy == "recursive":
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=self.config.chunk_config.chunk_size,
-                chunk_overlap=self.config.chunk_config.chunk_overlap,
+                chunk_size=self.config.chunk_config.size,
+                chunk_overlap=self.config.chunk_config.overlap,
                 length_function=len,
                 is_separator_regex=False,
             )
             chunks = text_splitter.create_documents([text])
 
-        elif self.config.chunking_strategy == "character":
+        elif self.config.chunk_config.strategy == "character":
             text_splitter = CharacterTextSplitter(
                 separator="\n\n",
-                chunk_size=self.config.chunk_config.chunk_size,
-                chunk_overlap=self.config.chunk_config.chunk_overlap,
+                chunk_size=self.config.chunk_config.size,
+                chunk_overlap=self.config.chunk_config.overlap,
                 length_function=len,
                 is_separator_regex=False,
             )
             chunks = text_splitter.create_documents([text])
 
-        elif self.config.chunking_strategy == "semantic":
+        elif self.config.chunk_config.strategy == "semantic":
             text_splitter = SemanticChunker(
                 OpenAIEmbeddings(model=self.config.embedding_config.emb_model)
             )
             chunks = text_splitter.create_documents([text])
 
-        elif self.config.chunking_strategy == "tiktoken":
+        elif self.config.chunk_config.strategy == "tiktoken":
             text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
                 encoding_name="cl100k_base",
                 chunk_size=self.config.chunk_size,
@@ -63,7 +63,11 @@ class TextProcessor:
             chunks = text_splitter.split_text(text)
 
         return [
-            TextChunk(content=chunk.page_content, metadata=chunk.metadata)
+            TextChunk(
+                content=chunk.page_content,
+                metadata=chunk.metadata,
+                document_id=document.id,
+            )
             for chunk in chunks
         ]
 

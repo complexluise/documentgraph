@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -20,9 +21,22 @@ class DocumentExtractor(DataExtractor):
         Extracts documents from the configured input folder and yields them as Document objects.
 
         This method iterates through the files in the input folder, and for each file with a .txt extension, it reads the file content and yields a Document object with the file's ID, filename, and content.
+        If no files are found, it logs a message and exits the program.
         """
-        input_path = Path(input_folder)
-        for i, file_path in enumerate(input_path.glob("*.txt")):
+
+        project_root = Path(__file__).resolve().parent.parent
+        input_path = project_root / input_folder
+        files = list(input_path.glob("*.txt"))
+
+        if not files:
+            import sys
+
+            logging.warning(
+                f"No archivos .txt encontrados {input_path}. Salir del programa."
+            )
+            sys.exit(1)
+
+        for file_path in files:
             with file_path.open("r", encoding="utf-8") as file:
                 content = file.read()
-                yield Document(id=i, filename=file_path.name, content=content)
+                yield Document(filename=file_path.name, content=content)
