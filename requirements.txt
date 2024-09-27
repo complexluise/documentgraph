@@ -1,0 +1,6 @@
+google-cloud-aiplatform==1.67.1
+google-generativeai==0.8.1
+langchain-core==0.3.6
+langchain-text-splitters==0.3.0
+neo4j==5.25.0
+pytest==8.3.3

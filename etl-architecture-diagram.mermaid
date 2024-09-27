@@ -1,0 +1,35 @@
+graph TD
+    A[Fuentes de Datos] -->|Extracción| B[DocumentExtractor]
+    B --> C[DocumentAnalysisPipeline]
+    C --> D[TextProcessor]
+    D --> E[EmbeddingGenerator]
+    E --> F[EntityRelationExtractor]
+    F --> G[KnowledgeGraphLoader]
+    G --> H[Grafo de Conocimiento]
+
+    subgraph "Capa de Extracción"
+    A
+    B
+    end
+
+    subgraph "Capa de Transformación"
+    D
+    E
+    F
+    end
+
+    subgraph "Capa de Carga"
+    G
+    H
+    end
+
+    subgraph "Pipeline Principal"
+    C
+    end
+
+    I[ETLConfig] --> C
+    I --> B
+    I --> D
+    I --> E
+    I --> F
+    I --> G
