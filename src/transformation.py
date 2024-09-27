@@ -1,5 +1,8 @@
 from typing import Tuple, List
-from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,
+    CharacterTextSplitter,
+)
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_openai.embeddings import OpenAIEmbeddings
 from src.config import ChunkConfig, ETLConfig
@@ -39,22 +42,22 @@ class TextProcessor:
             chunks = text_splitter.create_documents([text])
 
         elif self.config.chunking_strategy == "semantic":
-            text_splitter = SemanticChunker(OpenAIEmbeddings(model=self.config.embedding_config.model_name))
+            text_splitter = SemanticChunker(
+                OpenAIEmbeddings(model=self.config.embedding_config.model_name)
+            )
             chunks = text_splitter.create_documents([text])
 
         elif self.config.chunking_strategy == "tiktoken":
             text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
                 encoding_name="cl100k_base",
                 chunk_size=self.config.chunk_size,
-                chunk_overlap=self.config.chunk_overlap
+                chunk_overlap=self.config.chunk_overlap,
             )
             chunks = text_splitter.split_text(text)
 
         return [
-            TextChunk(
-                content=chunk.page_content,
-                metadata=chunk.metadata
-            ) for chunk in chunks
+            TextChunk(content=chunk.page_content, metadata=chunk.metadata)
+            for chunk in chunks
         ]
 
 

@@ -5,11 +5,15 @@ from pydantic import BaseModel
 
 class EmbeddingConfig(BaseModel):
     model_name: str = "text-embedding-3-small"
-    embedding_dimension: int = 1536  # Assuming you're using OpenAI's default embedding size
+    embedding_dimension: int = (
+        1536  # Assuming you're using OpenAI's default embedding size
+    )
 
 
 class ChunkConfig(BaseModel):
-    chunking_strategy: str = "recursive"  # Options: "recursive", "character", "semantic", "tiktoken"
+    chunking_strategy: str = (
+        "recursive"  # Options: "recursive", "character", "semantic", "tiktoken"
+    )
     chunk_size: int = 100
     chunk_overlap: int = 20
 
