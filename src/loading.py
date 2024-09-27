@@ -53,11 +53,17 @@ class KnowledgeGraphLoader:
         )
 
     def load_document(self, document: Document) -> None:
+
+        properties = document.dict(exclude_none=True)
+        del properties['content']
+        if 'metadata' in properties and not properties['metadata']:
+            del properties['metadata']
+
         with self.driver.session() as session:
             session.run(
                 Neo4JQueryManager.create_document(),
                 id=document.id,
-                properties=document.dict(),
+                properties=document.dict(exclude_none=True),
             )
 
     def load_entities(self, entities: list[Entity]) -> None:
@@ -66,7 +72,7 @@ class KnowledgeGraphLoader:
                 session.run(
                     Neo4JQueryManager.create_entity(),
                     id=entity.id,
-                    properties=entity.dict(),
+                    properties=entity.dict(exclude_none=True),
                 )
 
     def load_relationships(self, relationships: list[Relationship]) -> None:
@@ -77,7 +83,7 @@ class KnowledgeGraphLoader:
                     source_id=rel.source_id,
                     target_id=rel.target_id,
                     rel_type=rel.type,
-                    properties=rel.dict(),
+                    properties=rel.dict(exclude_none=True),
                 )
 
     def load_chunks(self, chunk: TextChunk, document: Document) -> None:

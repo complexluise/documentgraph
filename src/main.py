@@ -89,7 +89,7 @@ class DocumentAnalysisPipeline:
     def load_knowledge_graph(
         self,
         extraction_results: list[ExtractionResult],
-        embedded_chunks: TextChunk,
+        embedded_chunks: list[TextChunk],
         document: Document,
     ) -> None:
         """
@@ -98,7 +98,7 @@ class DocumentAnalysisPipeline:
         logger.info("Cargando datos en el grafo de conocimiento")
         try:
             for i, result in enumerate(extraction_results):
-                self.graph_loader.load_incremental(
+                self.graph_loader.load_incremental(  # TODO terminar de probar
                     result.entities, result.relationships, embedded_chunks[i], document
                 )
             logger.info("Datos cargados exitosamente en el grafo de conocimiento")
