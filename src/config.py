@@ -18,8 +18,8 @@ class ChunkConfig(BaseModel):
     strategy: str = (
         "recursive"  # Options: "recursive", "character", "semantic", "tiktoken"
     )
-    size: int = 600
-    overlap: int = 20
+    size: int = 2000
+    overlap: int = 200
 
 
 class OpenAIConfig(BaseModel):
