@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "documentgraph"
-version = "0.1.1"
+version = "0.1.2"
 description = "A document analysis pipeline with knowledge graph"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -21,6 +21,8 @@ dependencies = [
     "langchain-core==0.3.6",
     "langchain-text-splitters==0.3.0",
     "neo4j==5.25.0",
+    "langchain_experimental==0.3.2",
+    "langchain_openai==0.2.1"
 ]
 
 [project.optional-dependencies]
@@ -36,10 +38,10 @@ Homepage = "https://github.com/complexluise/documentgraph"
 Issues = "https://github.com/complexluise/documentgraph/issues"
 
 [tool.setuptools.packages.find]
-where = ["documentgraph"]
+where = ["."]
 
 [project.scripts]
-documentgraph = "documentgraph.main:main"
+documentgraph = "documentgraph.cli:main"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

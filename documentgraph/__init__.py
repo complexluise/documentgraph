@@ -5,7 +5,7 @@ from .transformation import TextProcessor, EmbeddingGenerator, EntityRelationExt
 from .loading import KnowledgeGraphLoader
 from .models import Document, TextChunk, Entity, Relationship, ExtractionResult
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "DocumentAnalysisPipeline",
