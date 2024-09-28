@@ -121,8 +121,8 @@ We welcome contributions to DocumentGraph! Here's how you can help:
 
 If you encounter any bugs or have suggestions for improvements:
 
-1. Check the [existing issues](https://github.com/yourusername/documentgraph/issues) to avoid duplicates.
-2. If your issue isn't already listed, [open a new issue](https://github.com/yourusername/documentgraph/issues/new).
+1. Check the [existing issues](https://github.com/complexluise/documentgraph/issues) to avoid duplicates.
+2. If your issue isn't already listed, [open a new issue](https://github.com/complexluise/documentgraph/issues/new).
 3. Clearly describe the problem or enhancement, including steps to reproduce if applicable.
 4. Add relevant labels (e.g., 'bug', 'enhancement', 'documentation').
 
@@ -135,7 +135,7 @@ To contribute code or documentation improvements:
 3. Make your changes, ensuring you follow the project's coding standards.
 4. Write or update tests as necessary.
 5. Commit your changes with clear, descriptive commit messages.
-6. Push to your fork and [submit a pull request](https://github.com/yourusername/documentgraph/compare).
+6. Push to your fork and [submit a pull request](https://github.com/complexluise/documentgraph/compare).
 
 ### Proposing Major Changes
 
