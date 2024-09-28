@@ -22,7 +22,7 @@ This package is ideal for users who need to process large volumes of documents a
 ## Prerequisites
 
 ### 1. Python Environment
-Ensure you have **Python 3.7+** installed in your environment. You can create a virtual environment to manage dependencies easily:
+Ensure you have **Python 3.10+** installed in your environment. You can create a virtual environment to manage dependencies easily:
 
 ```bash
 python -m venv documentgraph-env
