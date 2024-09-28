@@ -1,7 +1,6 @@
 import logging
-from typing import Tuple
 from documentgraph.extraction import DocumentExtractor
-from documentgraph.models import Document, TextChunk, Entity, Relationship, ExtractionResult
+from documentgraph.models import Document, TextChunk, ExtractionResult
 from documentgraph.transformation import (
     TextProcessor,
     EmbeddingGenerator,
