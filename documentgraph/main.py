@@ -1,14 +1,13 @@
 import logging
-from typing import Tuple
-from src.extraction import DocumentExtractor
-from src.models import Document, TextChunk, Entity, Relationship, ExtractionResult
-from src.transformation import (
+from documentgraph.extraction import DocumentExtractor
+from documentgraph.models import Document, TextChunk, ExtractionResult
+from documentgraph.transformation import (
     TextProcessor,
     EmbeddingGenerator,
     EntityRelationExtractor,
 )
-from src.loading import KnowledgeGraphLoader
-from src.config import ETLConfig
+from documentgraph.loading import KnowledgeGraphLoader
+from documentgraph.config import ETLConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -121,9 +120,3 @@ class DocumentAnalysisPipeline:
             logger.error(f"Error al cargar datos en el grafo: {str(e)}", exc_info=True)
         finally:
             self.graph_loader.close()
-
-
-if __name__ == "__main__":
-    etl_config = ETLConfig()  # Asume que ETLConfig puede ser instanciada sin argumentos
-    pipeline = DocumentAnalysisPipeline(etl_config)
-    pipeline.execute_pipeline("data")

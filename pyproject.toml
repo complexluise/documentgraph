@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "documentgraph"
+version = "0.1.1"
+description = "A document analysis pipeline with knowledge graph"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name="Luise Higuera", email="luisehica@gmail.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "langchain-core==0.3.6",
+    "langchain-text-splitters==0.3.0",
+    "neo4j==5.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.3",
+    "black",
+    "isort",
+    "flake8",
+]
+
+[project.urls]
+Homepage = "https://github.com/complexluise/documentgraph"
+Issues = "https://github.com/complexluise/documentgraph/issues"
+
+[tool.setuptools.packages.find]
+where = ["documentgraph"]
+
+[project.scripts]
+documentgraph = "documentgraph.main:main"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"

@@ -1,7 +1,7 @@
 import logging
 
-from src.config import ETLConfig
-from src.models import Entity, Relationship, TextChunk, Document
+from documentgraph.config import ETLConfig
+from documentgraph.models import Entity, Relationship, TextChunk, Document
 from neo4j import GraphDatabase
 
 logger = logging.getLogger(__name__)

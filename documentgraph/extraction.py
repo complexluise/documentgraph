@@ -2,8 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.config import ETLConfig
-from src.models import Document
+from documentgraph.config import ETLConfig
+from documentgraph.models import Document
 
 
 class DataExtractor(ABC):
