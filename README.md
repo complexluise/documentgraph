@@ -29,14 +29,11 @@ python -m venv documentgraph-env
 source documentgraph-env/bin/activate   # On Windows: documentgraph-env\Scripts\activate
 ```
 
-### 2. Required Python Packages
-Install the required dependencies from the `requirements.txt` file:
-
+### 2. Install DocumentGraph
+Install the DocumentGraph package using pip:
 ```bash
-pip install -r requirements.txt
+pip install documentgraph
 ```
-
-These packages include libraries for Neo4j, logging, and document extraction.
 
 ### 3. Neo4j Setup
 The package requires a **Neo4j** database to store and query the knowledge graph. You can either use **Neo4j Aura** (cloud-based) or run a **local Neo4j instance**.
