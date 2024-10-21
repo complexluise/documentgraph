@@ -21,21 +21,13 @@ This package is ideal for users who need to process large volumes of documents a
 
 ## Prerequisites
 
-### 1. Python Environment
-Ensure you have **Python 3.10+** installed in your environment. You can create a virtual environment to manage dependencies easily:
-
-```bash
-python -m venv documentgraph-env
-source documentgraph-env/bin/activate   # On Windows: documentgraph-env\Scripts\activate
-```
-
-### 2. Install DocumentGraph
+### 1. Install DocumentGraph
 Install the DocumentGraph package using pip:
 ```bash
 pip install documentgraph
 ```
 
-### 3. Neo4j Setup
+### 2. Neo4j Setup
 The package requires a **Neo4j** database to store and query the knowledge graph. You can either use **Neo4j Aura** (cloud-based) or run a **local Neo4j instance**.
 
 #### Option 1: Neo4j Aura (Cloud-based)
@@ -47,7 +39,7 @@ The package requires a **Neo4j** database to store and query the knowledge graph
 - Start a new local graph database instance.
 - The default local connection `uri` is usually `bolt://localhost:7687`, and the default username/password is `neo4j/neo4j`.
 
-### 4. Environment Variables
+### 3. Environment Variables
 You need to set up environment variables to allow the package to connect to the Neo4j database. You can add these variables to your shell environment or use a `.env` file.
 
 ```bash
@@ -66,7 +58,7 @@ export NEO4J_PASSWORD=your-password
 export OPENAI_API_KEY=your-openai-api-key
 ```
 
-### 5. Additional Neo4j Configuration
+### 4. Additional Neo4j Configuration
 For proper relationship creation, ensure you have the APOC (Awesome Procedures on Cypher) plugin installed in your Neo4j instance. This is necessary for creating custom relationships between entities and text chunks.
 
 ## Usage
